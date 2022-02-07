@@ -12,7 +12,6 @@ namespace FlightPlaner.Archive
         private static List<Flight> _flights = new List<Flight>();
         private static int _id;
         
-
         public static Flight AddFlight(AddFlightRequest request)
         {
             var flight = new Flight

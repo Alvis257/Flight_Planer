@@ -10,3 +10,4 @@
         public string ArrivalTime { get; set; }
     }
 }
+
