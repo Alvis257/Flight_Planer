@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\alvis\\Documents\\FlightPlaner\\FirstIteration\\FlightPlaner\\FlightPlaner\\FlightPlaner.csproj": {}
+    "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj": {}
   },
   "projects": {
-    "C:\\Users\\alvis\\Documents\\FlightPlaner\\FirstIteration\\FlightPlaner\\FlightPlaner\\FlightPlaner.csproj": {
+    "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\alvis\\Documents\\FlightPlaner\\FirstIteration\\FlightPlaner\\FlightPlaner\\FlightPlaner.csproj",
+        "projectUniqueName": "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj",
         "projectName": "FlightPlaner",
-        "projectPath": "C:\\Users\\alvis\\Documents\\FlightPlaner\\FirstIteration\\FlightPlaner\\FlightPlaner\\FlightPlaner.csproj",
+        "projectPath": "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj",
         "packagesPath": "C:\\Users\\alvis\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alvis\\Documents\\FlightPlaner\\FirstIteration\\FlightPlaner\\FlightPlaner\\obj\\",
+        "outputPath": "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -66,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.404\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
         }
       }
     }
