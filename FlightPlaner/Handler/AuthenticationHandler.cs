@@ -13,12 +13,13 @@ namespace FlightPlanner.Handlers
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         public BasicAuthenticationHandler(
-           IOptionsMonitor<AuthenticationSchemeOptions> options,
-           ILoggerFactory logger,
-           UrlEncoder encoder,
-           ISystemClock clock) : base(options, logger, encoder, clock)
+            IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder,
+            ISystemClock clock) : base(options, logger, encoder, clock)
         {
         }
+
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             return Task.FromResult(Authorize());
@@ -33,7 +34,7 @@ namespace FlightPlanner.Handlers
             {
                 var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
                 var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
-                var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+                var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] {':'}, 2);
                 var username = credentials[0];
                 var password = credentials[1];
 
@@ -42,7 +43,8 @@ namespace FlightPlanner.Handlers
                     return AuthenticateResult.Fail("Invalid Username or password!");
                 }
 
-                var claims = new Claim[] {
+                var claims = new Claim[]
+                {
                     new Claim(ClaimTypes.NameIdentifier, username),
                     new Claim(ClaimTypes.Name, username),
                 };
@@ -57,8 +59,6 @@ namespace FlightPlanner.Handlers
             }
         }
     }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
+
+

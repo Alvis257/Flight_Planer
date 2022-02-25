@@ -8,18 +8,12 @@ using Microsoft.EntityFrameworkCore;
 namespace FlightPlaner.Archive
 {
     public static class FlightStorage
-    {  
+    {
         private static readonly object requestLock = new object();
         private static int _id;
-        
-<<<<<<< Updated upstream
-
-        public static Flight AddFlight(AddFlightRequest request)
-=======
-     
 
         public static Flight ConvertToFlight(AddFlightRequest request)
->>>>>>> Stashed changes
+
         {
             var flight = new Flight
             {
@@ -48,11 +42,15 @@ namespace FlightPlaner.Archive
             return flight;
         }
 
-        public static Flight GetFlight(FlightPlanerDbContext context,int id)
+        public static Flight GetFlight(FlightPlanerDbContext context, int id)
         {
             lock (requestLock)
             {
-                var flight = context.Flights.Include(f => f.To).Include(f=>f.From).SingleOrDefault(x => x.Id == id);
+                var flight = context.Flights
+                    .Include(f => f.To)
+                    .Include(f => f.From)
+                    .SingleOrDefault(x => x.Id == id);
+
                 if (flight == null)
                 {
                     throw new InvalidIdException();
@@ -62,7 +60,7 @@ namespace FlightPlaner.Archive
             }
         }
 
-        public static List<Airport> searchAirports(FlightPlanerDbContext context,string phrase)
+        public static List<Airport> searchAirports(FlightPlanerDbContext context, string phrase)
         {
             phrase = phrase.ToLower().Trim();
             var resultFrom = context.Flights.Where(a =>
@@ -80,17 +78,22 @@ namespace FlightPlaner.Archive
             return resultFrom.Concat(resultTo).ToList();
         }
 
-        public static PageResult SearchFlight(FlightPlanerDbContext context ,SearchFlightsRequest request)
+        public static PageResult SearchFlight(FlightPlanerDbContext context, SearchFlightsRequest request)
         {
             var pageResult = new PageResult
             {
                 Items = new List<Flight>()
             };
 
-            var flights = context.Flights.Include(f => f.To).Include(f => f.From).Where(x =>
-                x.From.AirportName.ToLower().Trim().Contains(request.From.ToLower().Trim()) ||
-                x.To.AirportName.ToLower().Trim().Contains(request.To.ToLower().Trim()) ||
-              x.DepartureTime == Convert.ToString(request.DepartureDate)).Select(x=>x).ToList();
+            var flights = context.Flights
+                .Include(f => f.To)
+                .Include(f => f.From)
+                .Where(x =>
+                    x.From.AirportName.ToLower().Trim().Contains(request.From.ToLower().Trim()) ||
+                    x.To.AirportName.ToLower().Trim().Contains(request.To.ToLower().Trim()) ||
+                    x.DepartureTime == Convert.ToString(request.DepartureDate))
+                .Select(x => x)
+                .ToList();
 
             foreach (var flight in flights)
             {
@@ -127,7 +130,7 @@ namespace FlightPlaner.Archive
 
             return false;
         }
-     
+
         private static bool CheckDuplicateAirport(Flight flight)
         {
             if (flight.From.AirportName.ToLower() == flight.To.AirportName.ToLower() ||
@@ -138,6 +141,7 @@ namespace FlightPlaner.Archive
 
             return false;
         }
+
         public static bool CheckInvalidAirportSearch(SearchFlightsRequest request)
         {
             return request.From == null ||
@@ -145,6 +149,7 @@ namespace FlightPlaner.Archive
                    request.DepartureDate.Equals(null) ||
                    request.From.ToLower() == request.To.ToLower();
         }
+
         private static bool CheckDateTime(Flight flight)
         {
             if (DateTime.Parse(flight.ArrivalTime) <= DateTime.Parse(flight.DepartureTime))
