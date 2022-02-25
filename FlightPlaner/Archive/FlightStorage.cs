@@ -10,7 +10,6 @@ namespace FlightPlaner.Archive
     public static class FlightStorage
     {
         private static readonly object requestLock = new object();
-        private static int _id;
 
         public static Flight ConvertToFlight(AddFlightRequest request)
 
