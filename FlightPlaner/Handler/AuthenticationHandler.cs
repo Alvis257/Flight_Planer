@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FlightPlaner.Handler
+namespace FlightPlanner.Handlers
 {
-    public class AuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public AuthenticationHandler(
+        public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
@@ -29,6 +29,7 @@ namespace FlightPlaner.Handler
         {
             if (!Request.Headers.ContainsKey("Authorization"))
                 return AuthenticateResult.Fail("Missing Authorization Header");
+
             try
             {
                 var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
@@ -36,15 +37,17 @@ namespace FlightPlaner.Handler
                 var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] {':'}, 2);
                 var username = credentials[0];
                 var password = credentials[1];
-                if (username != "codelex-admin" && password != "Password123")
-                    return AuthenticateResult.Fail("Invalid Username or Password");
-                //
+
+                if (username != "codelex-admin" && password != "Password1234")
+                {
+                    return AuthenticateResult.Fail("Invalid Username or password!");
+                }
+
                 var claims = new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, username),
                     new Claim(ClaimTypes.Name, username),
                 };
-
                 var identity = new ClaimsIdentity(claims, Scheme.Name);
                 var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
@@ -57,3 +60,5 @@ namespace FlightPlaner.Handler
         }
     }
 }
+
+
