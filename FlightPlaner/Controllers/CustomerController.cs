@@ -2,19 +2,28 @@
 using FlightPlaner.Archive;
 using FlightPlaner.Exception;
 using FlightPlaner.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightPlaner.Controllers
 {
     [Route("api")]
     [ApiController]
+    [EnableCors]
     public class CustomerController : ControllerBase
     {
+        private readonly FlightPlanerDbContext _context;
+
+        public CustomerController(FlightPlanerDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet]
         [Route("airports")]
         public IActionResult SearchAirports(string search)
         {
-            List<Airport> flight = FlightStorage.searchAirports(search);
+            List<Airport> flight = FlightStorage.searchAirports(_context,search);
             return Ok(flight);
         }
 
@@ -27,7 +36,7 @@ namespace FlightPlaner.Controllers
                 return BadRequest();
             }
 
-            PageResult flight = FlightStorage.SearchFlight(req);
+            PageResult flight = FlightStorage.SearchFlight(_context,req);
             return Ok(flight);
         }
 
@@ -37,7 +46,7 @@ namespace FlightPlaner.Controllers
         {
             try
             {
-                var flight = FlightStorage.GetFlight(id);
+                var flight = FlightStorage.GetFlight(_context,id);
                 return Ok(flight);
             }
             catch (InvalidIdException)

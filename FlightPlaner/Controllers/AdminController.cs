@@ -1,55 +1,79 @@
-﻿using FlightPlaner.Archive;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using FlightPlaner.Archive;
 using FlightPlaner.Exception;
 using FlightPlaner.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlaner.Controllers
 {
     [Route("admin-api")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     [Authorize]
     public class AdminController : ControllerBase
     {
+        private static readonly object requestLock = new object();
+        private readonly FlightPlanerDbContext _context;
+
+        public AdminController(FlightPlanerDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet]
         [Route("Flights/{id}")]
-        public IActionResult GetFlights(int id)
+        public async Task<IActionResult> GetFlights(int id)
         {
-            try
-            {
-                var flight = FlightStorage.GetFlight(id);
-                return Ok(flight);
-            }
-            catch (InvalidIdException)
+
+            var flight = await _context.Flights
+                .Include(f => f.From)
+                .Include(f => f.To)
+                .SingleOrDefaultAsync(f=>f.Id == id);
+            if (flight == null)
             {
                 return NotFound();
             }
+
+            return Ok(flight);
+
+            
         }
 
         [HttpPut, Authorize]
         [Route("flights")]
         public IActionResult PutFlights(AddFlightRequest request)
         {
-            try
+            lock (requestLock)
             {
-                var flight = FlightStorage.AddFlight(request);
-                return Created("", flight);
-            }
-            catch (DuplicateDataException)
-            {
-                return Conflict();
-            }
-            catch (NullOrEmptyException)
-            {
-                return BadRequest();
-            }
-            catch (DateTimeException)
-            {
-                return BadRequest();
-            }
-            catch (DuplicateAirportException)
-            {
-                return BadRequest();
+                try
+                {
+                    var flight = FlightStorage.ConvertToFlight(request);
+                    CheckDuplicateFlight(flight);
+                    _context.Flights.Add(flight);
+                    _context.SaveChanges();
+
+                    return Created("", flight);
+                }
+                catch (DuplicateDataException)
+                {
+                    return Conflict();
+                }
+                catch (NullOrEmptyException)
+                {
+                    return BadRequest();
+                }
+                catch (DateTimeException)
+                {
+                    return BadRequest();
+                }
+                catch (DuplicateAirportException)
+                {
+                    return BadRequest();
+                }
             }
         }
 
@@ -57,8 +81,42 @@ namespace FlightPlaner.Controllers
         [Route("flights/{id}")]
         public IActionResult RemoveFlights(int id)
         {
-            FlightStorage.DeleteFlights(id);
-            return Ok();
+            lock (requestLock)
+            {
+                var flight = _context.Flights
+                    .Include(f => f.From)
+                    .Include(f => f.To)
+                    .SingleOrDefault(f => f.Id == id);
+                if (flight != null)
+                {
+                    _context.Flights.Remove(flight);
+                    _context.SaveChanges();
+                }
+
+                return Ok();
+            }
+        }
+
+
+        private bool CheckDuplicateFlight(Flight flight)
+        {
+            
+                if (_context.Flights
+                    .Any(fly => fly.To.AirportName.Trim().ToLower() == flight.To.AirportName.Trim().ToLower() &&
+                                                 fly.To.City.Trim().ToLower() == flight.To.City.Trim().ToLower() &&
+                                                 fly.To.Country.Trim().ToLower() == flight.To.Country.Trim().ToLower() &&
+                                                 fly.From.City.Trim().ToLower() == flight.From.City.Trim().ToLower() &&
+                                                 fly.From.Country.Trim().ToLower() == flight.From.Country.Trim().ToLower() &&
+                                                 fly.From.AirportName.Trim().ToLower() == flight.From.AirportName.Trim().ToLower() &&
+                                                 fly.ArrivalTime.Trim().ToLower() == flight.ArrivalTime.Trim().ToLower() &&
+                                                 fly.Carrier.Trim().ToLower() == flight.Carrier.Trim().ToLower() &&
+                                                 fly.DepartureTime.Trim().ToLower() == flight.DepartureTime.Trim().ToLower()))
+                {
+                    throw new DuplicateDataException();
+                }
+
+                return false;
+            
         }
     }
 }
