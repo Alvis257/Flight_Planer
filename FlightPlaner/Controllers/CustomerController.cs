@@ -12,18 +12,18 @@ namespace FlightPlaner.Controllers
     [EnableCors]
     public class CustomerController : ControllerBase
     {
-        private readonly FlightPlanerDbContext _context;
+        private readonly FlightPlanerDbContext _dbStorageContext;
 
         public CustomerController(FlightPlanerDbContext context)
         {
-            _context = context;
+            _dbStorageContext = context;
         }
 
         [HttpGet]
         [Route("airports")]
         public IActionResult SearchAirports(string search)
         {
-            List<Airport> flight = FlightStorage.searchAirports(_context,search);
+            List<Airport> flight = FlightStorage.searchAirports(_dbStorageContext,search);
             return Ok(flight);
         }
 
@@ -36,7 +36,7 @@ namespace FlightPlaner.Controllers
                 return BadRequest();
             }
 
-            PageResult flight = FlightStorage.SearchFlight(_context,req);
+            PageResult flight = FlightStorage.SearchFlight(_dbStorageContext,req);
             return Ok(flight);
         }
 
@@ -46,7 +46,7 @@ namespace FlightPlaner.Controllers
         {
             try
             {
-                var flight = FlightStorage.GetFlight(_context,id);
+                var flight = FlightStorage.GetFlight(_dbStorageContext,id);
                 return Ok(flight);
             }
             catch (InvalidIdException)

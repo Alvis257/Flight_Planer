@@ -41,11 +41,11 @@ namespace FlightPlaner.Archive
             return flight;
         }
 
-        public static Flight GetFlight(FlightPlanerDbContext context, int id)
+        public static Flight GetFlight(FlightPlanerDbContext dbStorageContext, int id)
         {
             lock (requestLock)
             {
-                var flight = context.Flights
+                var flight = dbStorageContext.Flights
                     .Include(f => f.To)
                     .Include(f => f.From)
                     .SingleOrDefault(x => x.Id == id);
@@ -59,16 +59,16 @@ namespace FlightPlaner.Archive
             }
         }
 
-        public static List<Airport> searchAirports(FlightPlanerDbContext context, string phrase)
+        public static List<Airport> searchAirports(FlightPlanerDbContext dbStorageContext, string phrase)
         {
             phrase = phrase.ToLower().Trim();
-            var resultFrom = context.Flights.Where(a =>
+            var resultFrom = dbStorageContext.Flights.Where(a =>
                     a.From.AirportName.ToLower().Trim().Contains(phrase) ||
                     a.From.Country.ToLower().Trim().Contains(phrase) ||
                     a.From.City.ToLower().Trim().Contains(phrase))
                 .Select(a => a.From).ToList();
 
-            var resultTo = context.Flights.Where(a =>
+            var resultTo = dbStorageContext.Flights.Where(a =>
                     a.To.AirportName.ToLower().Trim().Contains(phrase) ||
                     a.To.Country.ToLower().Trim().Contains(phrase) ||
                     a.To.City.ToLower().Trim().Contains(phrase))
@@ -77,14 +77,14 @@ namespace FlightPlaner.Archive
             return resultFrom.Concat(resultTo).ToList();
         }
 
-        public static PageResult SearchFlight(FlightPlanerDbContext context, SearchFlightsRequest request)
+        public static PageResult SearchFlight(FlightPlanerDbContext dbStorageContext, SearchFlightsRequest request)
         {
             var pageResult = new PageResult
             {
                 Items = new List<Flight>()
             };
 
-            var flights = context.Flights
+            var flights = dbStorageContext.Flights
                 .Include(f => f.To)
                 .Include(f => f.From)
                 .Where(x =>

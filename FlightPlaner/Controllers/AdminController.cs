@@ -17,11 +17,11 @@ namespace FlightPlaner.Controllers
     public class AdminController : ControllerBase
     {
         private static readonly object requestLock = new object();
-        private readonly FlightPlanerDbContext _context;
+        private readonly FlightPlanerDbContext _dbStorageContext;
 
         public AdminController(FlightPlanerDbContext context)
         {
-            _context = context;
+            _dbStorageContext = context;
         }
 
         [HttpGet]
@@ -29,7 +29,7 @@ namespace FlightPlaner.Controllers
         public async Task<IActionResult> GetFlights(int id)
         {
 
-            var flight = await _context.Flights
+            var flight = await _dbStorageContext.Flights
                 .Include(f => f.From)
                 .Include(f => f.To)
                 .SingleOrDefaultAsync(f=>f.Id == id);
@@ -53,8 +53,8 @@ namespace FlightPlaner.Controllers
                 {
                     var flight = FlightStorage.ConvertToFlight(request);
                     CheckDuplicateFlight(flight);
-                    _context.Flights.Add(flight);
-                    _context.SaveChanges();
+                    _dbStorageContext.Flights.Add(flight);
+                    _dbStorageContext.SaveChanges();
 
                     return Created("", flight);
                 }
@@ -83,14 +83,14 @@ namespace FlightPlaner.Controllers
         {
             lock (requestLock)
             {
-                var flight = _context.Flights
+                var flight = _dbStorageContext.Flights
                     .Include(f => f.From)
                     .Include(f => f.To)
                     .SingleOrDefault(f => f.Id == id);
                 if (flight != null)
                 {
-                    _context.Flights.Remove(flight);
-                    _context.SaveChanges();
+                    _dbStorageContext.Flights.Remove(flight);
+                    _dbStorageContext.SaveChanges();
                 }
 
                 return Ok();
@@ -101,7 +101,7 @@ namespace FlightPlaner.Controllers
         private bool CheckDuplicateFlight(Flight flight)
         {
             
-                if (_context.Flights
+                if (_dbStorageContext.Flights
                     .Any(fly => fly.To.AirportName.Trim().ToLower() == flight.To.AirportName.Trim().ToLower() &&
                                                  fly.To.City.Trim().ToLower() == flight.To.City.Trim().ToLower() &&
                                                  fly.To.Country.Trim().ToLower() == flight.To.Country.Trim().ToLower() &&
