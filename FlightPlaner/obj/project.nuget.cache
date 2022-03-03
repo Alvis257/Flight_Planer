@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "1gTOV04oKr/HIXhqKgF6zgy27+IqOHroNfFMIWXay3xKRMRTFy5HsQLDV+umuOG+tBI280Vkpzzq59m7wYOZCw==",
+  "dgSpecHash": "cnANurXwbkddfLhUNQQ/yfu5reMYdAxGC9P/cYpCtDsf+y31LYL6CQpeGBoz4aCFDfdDpXLoZBqzgoYGv1oVaA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj",
+  "projectFilePath": "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlaner\\FlightPlaner.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\alvis\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\alvis\\.nuget\\packages\\microsoft.aspnetcore.cors\\2.2.0\\microsoft.aspnetcore.cors.2.2.0.nupkg.sha512",
@@ -116,12 +116,5 @@
     "C:\\Users\\alvis\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
     "C:\\Users\\alvis\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\alvis\\Documents\\FlightPlaner\\Flight_Planer\\FlightPlaner\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  "logs": []
 }
