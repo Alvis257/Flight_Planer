@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using FlightPlaner.Archive;
-using FlightPlaner.Exception;
-using FlightPlaner.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
+using FlightPlanner.core.Dto;
+using FlightPlanner.core.Models;
+using FlightPlanner.core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlaner.Controllers
 {
@@ -17,63 +17,45 @@ namespace FlightPlaner.Controllers
     public class AdminController : ControllerBase
     {
         private static readonly object requestLock = new object();
-        private readonly FlightPlanerDbContext _dbStorageContext;
+        private readonly IFlightService _flightService;
+        private readonly IEnumerable<IValidator> _validators;
+        private readonly IMapper _mapper;
 
-        public AdminController(FlightPlanerDbContext context)
+        public AdminController(IFlightService flightService,
+            IEnumerable<IValidator> validators,
+            IMapper mapper)
         {
-            _dbStorageContext = context;
+            _flightService = flightService;
+            _validators = validators;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Flights/{id}")]
-        public async Task<IActionResult> GetFlights(int id)
+        public IActionResult GetFlights(int id)
         {
-
-            var flight = await _dbStorageContext.Flights
-                .Include(f => f.From)
-                .Include(f => f.To)
-                .SingleOrDefaultAsync(f=>f.Id == id);
-            if (flight == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(flight);
-
             
+                var flight = _flightService.GetFlightWithAirports(id);
+
+                return flight==null? NotFound(): (IActionResult)Ok(flight);
         }
 
         [HttpPut, Authorize]
         [Route("flights")]
-        public IActionResult PutFlights(AddFlightRequest request)
+        public IActionResult PutFlights(AddFlightDto request)
         {
             lock (requestLock)
             {
-                try
-                {
-                    var flight = FlightStorage.ConvertToFlight(request);
-                    CheckDuplicateFlight(flight);
-                    _dbStorageContext.Flights.Add(flight);
-                    _dbStorageContext.SaveChanges();
 
-                    return Created("", flight);
-                }
-                catch (DuplicateDataException)
-                {
+                if (!_validators.All(v => v.IsValid(request)))
+                    return BadRequest();
+                if (_flightService.CheckDuplicateFlight(request))
                     return Conflict();
-                }
-                catch (NullOrEmptyException)
-                {
-                    return BadRequest();
-                }
-                catch (DateTimeException)
-                {
-                    return BadRequest();
-                }
-                catch (DuplicateAirportException)
-                {
-                    return BadRequest();
-                }
+
+                var flight = _mapper.Map<Flight>(request);
+                _flightService.Create(flight);
+
+                return Created("", _mapper.Map<AddFlightDto>(flight));
             }
         }
 
@@ -83,40 +65,9 @@ namespace FlightPlaner.Controllers
         {
             lock (requestLock)
             {
-                var flight = _dbStorageContext.Flights
-                    .Include(f => f.From)
-                    .Include(f => f.To)
-                    .SingleOrDefault(f => f.Id == id);
-                if (flight != null)
-                {
-                    _dbStorageContext.Flights.Remove(flight);
-                    _dbStorageContext.SaveChanges();
-                }
-
+                _flightService.DeleteFlightByID(id);
                 return Ok();
             }
-        }
-
-
-        private bool CheckDuplicateFlight(Flight flight)
-        {
-            
-                if (_dbStorageContext.Flights
-                    .Any(fly => fly.To.AirportName.Trim().ToLower() == flight.To.AirportName.Trim().ToLower() &&
-                                                 fly.To.City.Trim().ToLower() == flight.To.City.Trim().ToLower() &&
-                                                 fly.To.Country.Trim().ToLower() == flight.To.Country.Trim().ToLower() &&
-                                                 fly.From.City.Trim().ToLower() == flight.From.City.Trim().ToLower() &&
-                                                 fly.From.Country.Trim().ToLower() == flight.From.Country.Trim().ToLower() &&
-                                                 fly.From.AirportName.Trim().ToLower() == flight.From.AirportName.Trim().ToLower() &&
-                                                 fly.ArrivalTime.Trim().ToLower() == flight.ArrivalTime.Trim().ToLower() &&
-                                                 fly.Carrier.Trim().ToLower() == flight.Carrier.Trim().ToLower() &&
-                                                 fly.DepartureTime.Trim().ToLower() == flight.DepartureTime.Trim().ToLower()))
-                {
-                    throw new DuplicateDataException();
-                }
-
-                return false;
-            
         }
     }
 }

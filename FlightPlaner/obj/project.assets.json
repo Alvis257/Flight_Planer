@@ -2,6 +2,18 @@
   "version": 3,
   "targets": {
     "net5.0": {
+      "AutoMapper/11.0.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0"
+        },
+        "compile": {
+          "lib/netstandard2.1/AutoMapper.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.1/AutoMapper.dll": {}
+        }
+      },
       "Humanizer.Core/2.8.26": {
         "type": "package",
         "compile": {
@@ -1689,10 +1701,65 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
+      },
+      "FlightPlanner.core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "compile": {
+          "bin/placeholder/FlightPlanner.core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FlightPlanner.core.dll": {}
+        }
+      },
+      "FlightPlanner.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "FlightPlanner.core": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "5.0.14",
+          "Microsoft.EntityFrameworkCore.SqlServer": "5.0.14"
+        },
+        "compile": {
+          "bin/placeholder/FlightPlanner.Data.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FlightPlanner.Data.dll": {}
+        }
+      },
+      "FlightPlanner.Services/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "AutoMapper": "11.0.1",
+          "FlightPlanner.Data": "1.0.0",
+          "FlightPlanner.core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/FlightPlanner.Services.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FlightPlanner.Services.dll": {}
+        }
       }
     }
   },
   "libraries": {
+    "AutoMapper/11.0.1": {
+      "sha512": "WIadGC1pIwbnyTubvI577p3F++Bsj9q2Q3OaAc1I0QS+JhupN1xkdrPBhI9bPIeg63zM81tZplUNYkqU1HE5jQ==",
+      "type": "package",
+      "path": "automapper/11.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "automapper.11.0.1.nupkg.sha512",
+        "automapper.nuspec",
+        "icon.png",
+        "lib/netstandard2.1/AutoMapper.dll",
+        "lib/netstandard2.1/AutoMapper.xml"
+      ]
+    },
     "Humanizer.Core/2.8.26": {
       "sha512": "OiKusGL20vby4uDEswj2IgkdchC1yQ6rwbIkZDVBPIR6al2b7n3pC91elBul9q33KaBgRKhbZH3+2Ur4fnWx2A==",
       "type": "package",
@@ -6208,10 +6275,28 @@
         "system.xml.xmlserializer.4.3.0.nupkg.sha512",
         "system.xml.xmlserializer.nuspec"
       ]
+    },
+    "FlightPlanner.core/1.0.0": {
+      "type": "project",
+      "path": "../FlightPlanner.core/FlightPlanner.core.csproj",
+      "msbuildProject": "../FlightPlanner.core/FlightPlanner.core.csproj"
+    },
+    "FlightPlanner.Data/1.0.0": {
+      "type": "project",
+      "path": "../FlightPlanner.Data/FlightPlanner.Data.csproj",
+      "msbuildProject": "../FlightPlanner.Data/FlightPlanner.Data.csproj"
+    },
+    "FlightPlanner.Services/1.0.0": {
+      "type": "project",
+      "path": "../FlightPlanner.Services/FlightPlanner.Services.csproj",
+      "msbuildProject": "../FlightPlanner.Services/FlightPlanner.Services.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net5.0": [
+      "FlightPlanner.Data >= 1.0.0",
+      "FlightPlanner.Services >= 1.0.0",
+      "FlightPlanner.core >= 1.0.0",
       "Microsoft.AspNetCore.Cors >= 2.2.0",
       "Microsoft.EntityFrameworkCore >= 5.0.14",
       "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.14",
@@ -6249,7 +6334,17 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.core\\FlightPlanner.core.csproj": {
+              "projectPath": "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.core\\FlightPlanner.core.csproj"
+            },
+            "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.Data\\FlightPlanner.Data.csproj": {
+              "projectPath": "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.Data\\FlightPlanner.Data.csproj"
+            },
+            "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.Services\\FlightPlanner.Services.csproj": {
+              "projectPath": "C:\\Users\\alvis\\Documents\\Codelex\\FlightPlaner\\Flight_Planer\\FlightPlanner.Services\\FlightPlanner.Services.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -6303,7 +6398,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.406\\RuntimeIdentifierGraph.json"
       }
     }
   }

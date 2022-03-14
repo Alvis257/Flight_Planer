@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
-using FlightPlaner.Archive;
-using FlightPlaner.Exception;
-using FlightPlaner.Models;
+using System.Linq;
+using AutoMapper;
+using FlightPlanner.core.Dto;
+using FlightPlanner.core.Models;
+using FlightPlanner.core.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,31 +14,36 @@ namespace FlightPlaner.Controllers
     [EnableCors]
     public class CustomerController : ControllerBase
     {
-        private readonly FlightPlanerDbContext _dbStorageContext;
-
-        public CustomerController(FlightPlanerDbContext context)
+        private readonly IPageResultService _pageService;
+        private readonly IFlightService _flightService;
+        private readonly IEnumerable<ISearchFlightRequestValidator> _validators;
+        private IMapper _mapper;
+        public CustomerController(IPageResultService pageService,
+            IEnumerable<ISearchFlightRequestValidator> validators,
+            IMapper mapper, IFlightService flightService)
         {
-            _dbStorageContext = context;
+            _flightService = flightService;
+            _pageService = pageService;
+            _validators = validators;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("airports")]
         public IActionResult SearchAirports(string search)
         {
-            List<Airport> flight = FlightStorage.searchAirports(_dbStorageContext,search);
-            return Ok(flight);
+            Airport flight = _flightService.SearchAirports(search);
+            return Ok(new[] {_mapper.Map<AddAirportDto>(flight)});
         }
 
         [HttpPost]
         [Route("flights/search")]
         public IActionResult SearchFlights(SearchFlightsRequest req)
         {
-            if (FlightStorage.CheckInvalidAirportSearch(req))
-            {
+            if (!_validators.All(v=>v.IsValid(req)))
                 return BadRequest();
-            }
 
-            PageResult flight = FlightStorage.SearchFlight(_dbStorageContext,req);
+            PageResult flight = _pageService.SearchFlights(req);
             return Ok(flight);
         }
 
@@ -44,15 +51,9 @@ namespace FlightPlaner.Controllers
         [Route("flights/{id}")]
         public IActionResult FindFlight(int id)
         {
-            try
-            {
-                var flight = FlightStorage.GetFlight(_dbStorageContext,id);
-                return Ok(flight);
-            }
-            catch (InvalidIdException)
-            {
-                return NotFound();
-            }
+            var flight = _flightService.GetFlightWithAirports(id);
+
+            return flight == null ? NotFound() : (IActionResult)Ok(_mapper.Map<AddFlightDto>(flight));
         }
     }
 }

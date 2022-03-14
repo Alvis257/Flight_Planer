@@ -1,14 +1,21 @@
-using FlightPlaner.Archive;
+using AutoMapper;
+using FlightPlanner.core.Models;
+using FlightPlanner.core.Services;
+using FlightPlanner.Data;
 using FlightPlanner.Handlers;
+using FlightPlanner.Services;
+using FlightPlanner.Services.Mappers;
+using FlightPlanner.Services.Validators;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication;
 
-namespace FlightPlanner
+namespace FlightPlaner
 {
     public class Startup
     {
@@ -26,9 +33,37 @@ namespace FlightPlanner
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FlightPlanner", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "FlightPlanner", Version = "v1"});
             });
-            services.AddDbContext<FlightPlanerDbContext>(ServiceLifetime.Scoped);
+            services.AddDbContext<FlightPlanerDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("flight-planer"));
+            });
+
+            services.AddTransient<IFlightPlannerDbContext,FlightPlanerDbContext>();
+            services.AddTransient<IDbService, DbService>();
+            services.AddTransient<IEntityService<Flight>, EntityService<Flight>>();
+            services.AddTransient<IEntityService<Airport>, EntityService<Airport>>();
+            services.AddTransient<IFlightService,FlightService>();
+            services.AddTransient<IPageResultService, PageResultService>();
+            services.AddTransient<IValidator, AddFlightRequestValidator>();
+            services.AddTransient<IValidator, ArrivalTimeValidator>();
+            services.AddTransient<IValidator, DeparutreTimeValidator>();
+            services.AddTransient<IValidator, CarrierValidator>();
+            services.AddTransient<IValidator, FromAirportValidator>();
+            services.AddTransient<IValidator, ToAirportValidator>();
+            services.AddTransient<IValidator, FromAirportCityValidator>();
+            services.AddTransient<IValidator, FromAirportCountryValidator>();
+            services.AddTransient<IValidator, FromAirportNameValidation>();
+            services.AddTransient<IValidator, ToAirportCityValidator>();
+            services.AddTransient<IValidator, ToAirportCountryValidator>();
+            services.AddTransient<IValidator, ToAirportNameValidator>();
+            services.AddTransient<IValidator, TimeFrameValidator>();
+            services.AddTransient<IValidator, AirportNameEqualityValidator>();
+            services.AddTransient<ISearchFlightRequestValidator, SearchFlightRequestValidator>();
+            var mapper = AutoMapperConfig.CreateMapper();
+            services.AddSingleton<IMapper>(mapper);
+            services.AddTransient<IDbExtendedService, DbExtendedService>();
 
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
