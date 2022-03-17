@@ -1,4 +1,5 @@
-﻿using FlightPlanner.core.Models;
+﻿using System.Collections.Generic;
+using FlightPlanner.core.Models;
 using FlightPlanner.core.Services;
 using FlightPlanner.Data;
 using Microsoft.EntityFrameworkCore;
@@ -35,13 +36,14 @@ namespace FlightPlanner.Services
                                       fly.DepartureTime.Trim().ToLower() == flight.DepartureTime.Trim().ToLower());
         }
 
-        public Airport SearchAirports(string phrase)
+        public List<Airport> SearchAirports(string phrase)
         {
             phrase = phrase.ToLower().Trim();
-            var resultFrom = _dbStorageContext.Airports.SingleOrDefault(a =>
-                a.AirportName.ToLower().Trim().Contains(phrase) ||
-                a.Country.ToLower().Trim().Contains(phrase) ||
-                a.City.ToLower().Trim().Contains(phrase));
+            var resultFrom = _dbStorageContext.Flights.Where(a =>
+                    a.From.AirportName.ToLower().Trim().Contains(phrase) ||
+                    a.From.Country.ToLower().Trim().Contains(phrase) ||
+                    a.From.City.ToLower().Trim().Contains(phrase))
+                .Select(a => a.From).ToList();
 
             return resultFrom;
         }

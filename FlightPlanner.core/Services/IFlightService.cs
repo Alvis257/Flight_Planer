@@ -1,4 +1,5 @@
-﻿using FlightPlanner.core.Dto;
+﻿using System.Collections.Generic;
+using FlightPlanner.core.Dto;
 using FlightPlanner.core.Models;
 
 namespace FlightPlanner.core.Services
@@ -8,6 +9,7 @@ namespace FlightPlanner.core.Services
         Flight GetFlightWithAirports(int id);
         void DeleteFlightByID(int id);
         bool CheckDuplicateFlight(AddFlightDto flight);
-        Airport SearchAirports(string phrase);
+        List<Airport> SearchAirports(string phrase);
+
     }
 }

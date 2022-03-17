@@ -32,8 +32,9 @@ namespace FlightPlaner.Controllers
         [Route("airports")]
         public IActionResult SearchAirports(string search)
         {
-            Airport flight = _flightService.SearchAirports(search);
-            return Ok(new[] {_mapper.Map<AddAirportDto>(flight)});
+           List<Airport> flight = _flightService.SearchAirports(search);
+           var result = _mapper.Map<List<AddAirportDto>>(flight);
+           return Ok(result);
         }
 
         [HttpPost]
